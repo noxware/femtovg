@@ -33,7 +33,7 @@ fn run<W: WindowSurface>(mut canvas: Canvas<W::Renderer>, el: EventLoop<()>, mut
     let mut perf = PerfGraph::new();
 
     el.run(move |event, event_loop_window_target| {
-        event_loop_window_target.set_control_flow(winit::event_loop::ControlFlow::Poll);
+        event_loop_window_target.set_control_flow(winit::event_loop::ControlFlow::Wait);
 
         match event {
             Event::LoopExiting => event_loop_window_target.exit(),
@@ -41,6 +41,9 @@ fn run<W: WindowSurface>(mut canvas: Canvas<W::Renderer>, el: EventLoop<()>, mut
                 #[cfg(not(target_arch = "wasm32"))]
                 WindowEvent::Resized(physical_size) => {
                     surface.resize(physical_size.width, physical_size.height);
+                }
+                WindowEvent::CursorMoved { .. } => {
+                    window.request_redraw();
                 }
                 WindowEvent::CloseRequested => event_loop_window_target.exit(),
                 WindowEvent::RedrawRequested { .. } => {
@@ -66,8 +69,6 @@ fn run<W: WindowSurface>(mut canvas: Canvas<W::Renderer>, el: EventLoop<()>, mut
                 }
                 _ => (),
             },
-
-            Event::AboutToWait => window.request_redraw(),
             _ => (),
         }
     })
